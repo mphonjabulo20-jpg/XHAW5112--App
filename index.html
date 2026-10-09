@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adventure Escape SA</title>
+  <style>
+    :root {
+      --forest-green: #1B5E20;
+      --adventure-orange: #F57C00;
+      --sky-blue: #0288D1;
+      --off-white: #F5F5F0;
+      --dark-text: #1a1a1a;
+      --light-text: #ffffff;
+      --grey-text: #666666;
+      --card-bg: #ffffff;
+      --danger: #D32F2F;
+      --success: #2E7D32;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 420px;
+      background: var(--off-white);
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .status-bar {
+      background: transparent;
+      padding: 8px 20px 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark-text);
+      position: relative;
+      z-index: 10;
+    }
+    .status-bar.on-image { color: #fff; }
+    .status-bar .icons { display: flex; gap: 6px; }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px;
+      animation: fadeIn 0.3s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      padding: 12px 20px;
+      background: var(--off-white);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--dark-text);
+      text-align: center;
+    }
+    .header-sub {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--adventure-orange);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      background: linear-gradient(180deg, #5a7a8a 0%, #3d5a6b 40%, #2c3e50 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 90%, rgba(245,124,0,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 20%, rgba(255,200,100,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-mountains {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 45%;
+      background:
+        linear-gradient(135deg, transparent 40%, #1a2a35 40%),
+        linear-gradient(225deg, transparent 40%, #1a2a35 40%);
+      opacity: 0.7;
+    }
+    .hero-mountains::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 30%;
+      background: linear-gradient(180deg, transparent, #0f1a22);
+    }
+    .hero-logo {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      background: var(--forest-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero h2 {
+      font-size: 15px;
+      font-weight: 400;
+      opacity: 0.9;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-activities {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #fff;
+      opacity: 0.85;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-cta {
+      background: var(--adventure-orange);
+      color: #fff;
+      border: none;
+      padding: 16px 40px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin: 10px 0;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 6px 20px rgba(245,124,0,0.5);
+      transition: transform 0.2s;
+    }
+    .hero-cta:active { transform: scale(0.96); }
+    .hero-why {
+      margin-top: 24px;
+      text-align: left;
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.8;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-why strong { display: block; text-align: center; margin-bottom: 6px; font-size: 14px; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 4px 12px;
+      border-top: 1px solid #e0e0e0;
+      z-index: 100;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: #999;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: color 0.2s;
+      flex: 1;
+      min-width: 0;
+    }
+    .nav-item.active { color: var(--forest-green); font-weight: 700; }
+    .nav-icon {
+      width: 22px; height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 0 16px 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      transition: transform 0.2s;
+    }
+    .card:active { transform: scale(0.98); }
+    .card-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+      background-size: cover;
+      background-position: center;
+    }
+    .card-img.placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: rgba(255,255,255,0.3);
+      background-size: cover;
+      background-position: center;
+    }
+    .card-body { padding: 12px 14px; }
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--dark-text);
+      line-height: 1.3;
+    }
+    .card-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--adventure-orange);
+      white-space: nowrap;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--grey-text);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+    .tag.easy { background: #E8F5E9; color: var(--success); }
+    .tag.moderate { background: #FFF3E0; color: var(--adventure-orange); }
+    .tag.challenging { background: #FFEBEE; color: var(--danger); }
+    .tag.duration { background: #E1F5FE; color: var(--sky-blue); }
+    .tag.safety { background: #F1F8E9; color: var(--forest-green); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      padding: 10px 18px;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--forest-green); color: #fff; }
+    .btn-orange { background: var(--adventure-orange); color: #fff; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--forest-green);
+      color: var(--forest-green);
+    }
+    .btn-block { width: 100%; padding: 14px; font-size: 15px; border-radius: 12px; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--adventure-orange);
+      padding: 16px 20px 6px;
+      text-transform: uppercase;
+    }
+    .section-heading {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--dark-text);
+      padding: 0 20px 12px;
+    }
+
+    .about-hero {
+      height: 200px;
+      background: linear-gradient(135deg, #1B5E20, #0288D1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      color: rgba(255,255,255,0.4);
+      position: relative;
+    }
+    .about-content {
+      padding: 20px;
+      text-align: center;
+    }
+    .about-content h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--sky-blue);
+      margin-bottom: 10px;
+    }
+    .about-content p {
+      font-size: 13px;
+      color: var(--grey-text);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .pillars {
+      display: flex;
+      gap: 10px;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+    .pillar {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .pillar-icon { font-size: 24px; margin-bottom: 6px; }
+    .pillar h4 { font-size: 12px; font-weight: 800; color: var(--forest-green); margin-bottom: 4px; }
+    .pillar p { font-size: 10px; color: var(--grey-text); line-height: 1.4; }
+    .contact-cta {
+      margin: 0 16px 16px;
+      padding: 20px;
+      background: linear-gradient(135deg, #E8F5E9, #E1F5FE);
+      border-radius: 14px;
+      text-align: center;
+    }
+    .contact-cta h3 { font-size: 15px; font-weight: 800; color: var(--forest-green); margin-bottom: 6px; }
+    .contact-cta p { font-size: 12px; color: var(--grey-text); margin-bottom: 12px; }
+
+    .form-group {
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dark-text);
+      margin-bottom: 5px;
+      letter-spacing: 0.3px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--dark-text);
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--forest-green);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 6px 10px;
+      width: fit-content;
+    }
+    .counter button {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--forest-green);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .counter button:active { transform: scale(0.9); }
+    .counter span {
+      font-size: 16px;
+      font-weight: 800;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .discount-box {
+      margin: 0 16px 16px;
+      background: #E8F5E9;
+      border: 1.5px solid #A5D6A7;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .discount-box h4 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--forest-green);
+      margin-bottom: 10px;
+    }
+    .discount-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      color: var(--dark-text);
+    }
+    .discount-row .pct { font-weight: 800; color: var(--success); }
+
+    .cost-breakdown {
+      margin: 0 16px 16px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 6px 0;
+      color: var(--grey-text);
+    }
+    .cost-row.total {
+      border-top: 1.5px solid #eee;
+      margin-top: 6px;
+      padding-top: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--forest-green);
+    }
+    .cost-row.discount { color: var(--success); font-weight: 600; }
+
+    .gallery-filters {
+      display: flex;
+      gap: 6px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .gallery-filters::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1.5px solid #ddd;
+      background: #fff;
+      color: var(--grey-text);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .filter-chip.active {
+      background: var(--forest-green);
+      color: #fff;
+      border-color: var(--forest-green);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 16px;
+    }
+    .gallery-item {
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #2c5364, #203a43);
+      display: flex;
+      align-items: flex-end;
+      cursor: pointer;
+    }
+    .gallery-item .g-label {
+      width: 100%;
+      padding: 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .gallery-item .g-emoji {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -60%);
+      font-size: 36px;
+      opacity: 0.7;
+    }
+
+    .review-summary {
+      text-align: center;
+      padding: 0 20px 16px;
+    }
+    .review-score {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--forest-green);
+    }
+    .review-stars { font-size: 18px; color: #FFC107; }
+    .review-sub { font-size: 12px; color: var(--grey-text); margin-top: 4px; }
+    .review-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 0 16px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .review-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .review-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0288D1, #1B5E20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .review-name { font-size: 13px; font-weight: 800; color: var(--dark-text); }
+    .review-date { font-size: 11px; color: var(--grey-text); }
+    .review-text { font-size: 12px; color: var(--grey-text); line-height: 1.5; }
+    .review-stars-sm { font-size: 12px; color: #FFC107; margin-bottom: 4px; }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #fff;
+      margin: 0 16px 8px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .contact-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: #E8F5E9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .contact-item .c-label { font-size: 10px; color: var(--grey-text); font-weight: 600; }
+    .contact-item .c-value { font-size: 13px; color: var(--dark-text); font-weight: 700; }
+    .map-placeholder {
+      margin: 8px 16px 16px;
+      height: 120px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #E1F5FE, #E8F5E9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--sky-blue);
+      font-weight: 700;
+      border: 1.5px dashed #90CAF9;
+    }
+    .hours-box {
+      margin: 0 16px 16px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .hours-box h4 { font-size: 13px; font-weight: 800; color: var(--forest-green); margin-bottom: 8px; }
+    .hours-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--grey-text); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 30px 24px;
+      text-align: center;
+      max-width: 340px;
+      width: 100%;
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: #E8F5E9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+    .modal h3 { font-size: 18px; font-weight: 800; color: var(--forest-green); margin-bottom: 8px; }
+    .modal p { font-size: 13px; color: var(--grey-text); line-height: 1.5; margin-bottom: 20px; }
+
+    .detail-hero {
+      height: 220px;
+      background: linear-gradient(135deg, #2c5364, #203a43);
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      color: rgba(255,255,255,0.3);
+      position: relative;
+    }
+    .back-btn {
+      position: absolute;
+      top: 16px; left: 16px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.4);
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .detail-body { padding: 20px; }
+    .detail-body h2 { font-size: 22px; font-weight: 800; color: var(--dark-text); margin-bottom: 6px; }
+    .detail-price { font-size: 20px; font-weight: 800; color: var(--adventure-orange); margin-bottom: 12px; }
+    .detail-body p { font-size: 13px; color: var(--grey-text); line-height: 1.6; margin-bottom: 16px; }
+    .included-list {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .included-list h4 { font-size: 13px; font-weight: 800; color: var(--forest-green); margin-bottom: 8px; }
+    .included-list li {
+      font-size: 12px;
+      color: var(--grey-text);
+      padding: 3px 0;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .included-list li::before { content: '✓'; color: var(--success); font-weight: 800; }
+
+    .spacer { flex: 1; }
+    .text-center { text-align: center; }
+    .mt-8 { margin-top: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+    .px-16 { padding-left: 16px; padding-right: 16px; }
+    .hidden { display: none !important; }
+
+    @media (min-width: 421px) {
+      #app { border-radius: 24px; margin: 20px 0; min-height: calc(100vh - 40px); }
+      .bottom-nav { border-radius: 0 0 24px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="status-bar" id="statusBar">
+    <span>9:41</span>
+    <div class="icons"><span>📶</span><span>🔋</span></div>
+  </div>
+
+  <div class="screen active" id="screen-home">
+    <div class="hero">
+      <div class="hero-mountains"></div>
+      <div class="hero-logo">🏔️</div>
+      <h1>ADVENTURE ESCAPE SA</h1>
+      <h2>Explore the Wild Beauty of the Western Cape</h2>
+      <div class="hero-activities">HIKING · KAYAKING · CLIMBING</div>
+      <button class="hero-cta" onclick="showScreen('packages')">START YOUR JOURNEY</button>
+      <div class="hero-why">
+        <strong>Why Choose Us?</strong>
+        ✓ Professional Guides<br>
+        ✓ Safe Adventures<br>
+        ✓ Family Friendly
+      </div>
+      <button class="btn btn-orange" style="margin-top:20px;position:relative;z-index:2;padding:14px 36px;font-size:14px;" onclick="showScreen('packages')">ENTER</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-about">
+    <div class="header">
+      <div class="header-sub">THE JOURNEY</div>
+      <div class="header-title">About Us</div>
+    </div>
+    <div class="about-hero" style="background-image: linear-gradient(135deg, rgba(27,94,32,0.7), rgba(2,136,209,0.7)), url('assets/page29_0.png'); background-size: cover; background-position: center;">🏕️</div>
+    <div class="about-content">
+      <h2>Who We Are?</h2>
+      <p>Adventure Escape SA is a small-to-medium enterprise established in 2024 in the Western Cape, South Africa. We provide professionally guided outdoor adventure experiences for families, tourists, schools and corporate groups.</p>
+      <h2>Our Mission</h2>
+      <p>Our mission is to create exciting and memorable outdoor experiences while encouraging teamwork, fitness, adventure and appreciation for nature.</p>
+      <h2>Our Values</h2>
+      <p><strong>Safety · Adventure · Teamwork · Nature</strong></p>
+    </div>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-icon">🛡️</div>
+        <h4>Safety First</h4>
+        <p>Expert certified guides & international standard safety gear.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🧭</div>
+        <h4>Adventure</h4>
+        <p>Pushing limits across Western Cape's ultimate terrains.</p>
+      </div>
+    </div>
+    <div class="contact-cta">
+      <h3>Ready to plan a custom outing?</h3>
+      <p>Contact our Cape Town headquarters for tailor-made group itineraries.</p>
+      <button class="btn btn-orange" onclick="showScreen('contact')">Get in Touch</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-packages">
+    <div class="header">
+      <div class="header-sub">CURATED JOURNEYS</div>
+      <div class="header-title">Adventure Packages</div>
+    </div>
+    <div id="packagesList"></div>
+  </div>
+
+  <div class="screen" id="screen-activities">
+    <div class="header">
+      <div class="header-sub">PICK YOUR THRILL</div>
+      <div class="header-title">Individual Activities</div>
+    </div>
+    <div id="activitiesList"></div>
+  </div>
+
+  <div class="screen" id="screen-detail">
+    <div class="detail-hero" id="detailHero">
+      <button class="back-btn" onclick="showScreen('activities')">←</button>
+      <span id="detailEmoji">🪂</span>
+    </div>
+    <div class="detail-body">
+      <h2 id="detailTitle">Ziplining Adventure</h2>
+      <div class="detail-price" id="detailPrice">R750</div>
+      <p id="detailDesc">Experience breathtaking views while ziplining through the forest.</p>
+      <div class="included-list">
+        <h4>What's Included</h4>
+        <ul id="detailIncludes"></ul>
+      </div>
+      <button class="btn btn-orange btn-block" onclick="goToBooking()">BOOK NOW</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-fees">
+    <div class="header">
+      <div class="header-sub">SAVE ON GROUPS</div>
+      <div class="header-title">Discount Calculator</div>
+    </div>
+
+    <div class="discount-box">
+      <h4>Group Discount Tiers</h4>
+      <div class="discount-row"><span>1 booking</span><span class="pct">0% Discount</span></div>
+      <div class="discount-row"><span>2 bookings</span><span class="pct">5% Discount</span></div>
+      <div class="discount-row"><span>3 bookings</span><span class="pct">10% Discount</span></div>
+      <div class="discount-row"><span>More than 3</span><span class="pct">15% Discount</span></div>
+    </div>
+
+    <div class="form-group">
+      <label>Select Package / Activity</label>
+      <select id="feeSelect">
+        <option value="1500">Mountain Adventure (R1,500)</option>
+        <option value="1500">Ultimate Adventure Day (R1,500)</option>
+        <option value="1500">Family Explorer Package (R1,500)</option>
+        <option value="1500">Corporate Team Challenge (R1,500)</option>
+        <option value="750">Ziplining Adventure (R750)</option>
+        <option value="750">Kayaking Experience (R750)</option>
+        <option value="750">Rock Climbing Session (R750)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Number of Bookings</label>
+      <div class="counter">
+        <button onclick="changeFeeCount(-1)" type="button">−</button>
+        <span id="feeCount">4</span>
+        <button onclick="changeFeeCount(1)" type="button">+</button>
+      </div>
+    </div>
+
+    <div class="cost-breakdown" id="feeBreakdown"></div>
+
+    <div class="px-16 mb-16">
+      <button class="btn btn-orange btn-block" onclick="proceedToBooking()">PROCEED TO BOOKING</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-contact">
+    <div class="header">
+      <div class="header-sub">PLAN YOUR ESCAPE</div>
+      <div class="header-title">Contact Us</div>
+    </div>
+
+    <div class="contact-item">
+      <div class="contact-icon">📍</div>
+      <div>
+        <div class="c-label">Head Office</div>
+        <div class="c-value">Cape Town, Western Cape</div>
+      </div>
+    </div>
+
+    <div class="contact-item">
+      <div class="contact-icon">📞</div>
+      <div>
+        <div class="c-label">Phone</div>
+        <div class="c-value">+27 21 555 0142</div>
+      </div>
+    </div>
+
+    <div class="contact-item">
+      <div class="contact-icon">✉️</div>
+      <div>
+        <div class="c-label">Email</div>
+        <div class="c-value">hello@adventureescape.co.za</div>
+      </div>
+    </div>
+
+    <div class="map-placeholder">Map view for Cape Town Adventure Hub</div>
+
+    <div class="hours-box">
+      <h4>Opening Hours</h4>
+      <div class="hours-row"><span>Monday - Friday</span><span>08:00 - 17:00</span></div>
+      <div class="hours-row"><span>Saturday</span><span>08:00 - 14:00</span></div>
+      <div class="hours-row"><span>Sunday</span><span>By Appointment</span></div>
+    </div>
+
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" placeholder="Enter your name" />
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com" />
+    </div>
+    <div class="form-group">
+      <label>Adventure Interest</label>
+      <select>
+        <option>Mountain Adventure</option>
+        <option>Ziplining</option>
+        <option>Kayaking</option>
+        <option>Corporate Team Challenge</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Message</label>
+      <textarea placeholder="Tell us about your group or event..."></textarea>
+    </div>
+
+    <div class="px-16 mb-16">
+      <button class="btn btn-orange btn-block" onclick="showSuccessModal('Your enquiry has been sent successfully. Our team will contact you soon.')">SEND ENQUIRY</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" data-screen="home"><div class="nav-icon">🏠</div><span>Home</span></div>
+    <div class="nav-item" data-screen="about"><div class="nav-icon">ℹ️</div><span>About</span></div>
+    <div class="nav-item" data-screen="packages"><div class="nav-icon">🎒</div><span>Packages</span></div>
+    <div class="nav-item" data-screen="activities"><div class="nav-icon">⚡</div><span>Activities</span></div>
+    <div class="nav-item" data-screen="fees"><div class="nav-icon">💰</div><span>Fees</span></div>
+  </nav>
+</div>
+
+<div class="modal-overlay" id="successModal" aria-modal="true" role="dialog">
+  <div class="modal">
+    <div class="modal-icon">✅</div>
+    <h3>Booking Confirmed</h3>
+    <p id="modalMessage">Your adventure has been reserved successfully.</p>
+    <button class="btn btn-orange btn-block" onclick="closeSuccessModal()">OK</button>
+  </div>
+</div>
+
+<script>
+  const packages = [
+    {
+      title: 'Mountain Adventure',
+      price: 1500,
+      emoji: '🏔️',
+      image: 'assets/mountain.jpg',
+      description: 'A high-energy escape through mountain trails, scenic viewpoints, and guided challenge routes.',
+      tags: ['moderate', '3-4 hrs', 'Safety Gear']
+    },
+    {
+      title: 'Ultimate Adventure Day',
+      price: 1500,
+      emoji: '🧗',
+      image: 'assets/atv-biking.jpg',
+      description: 'A full-day experience combining climbing, hiking, and team-based adventure on rugged terrain.',
+      tags: ['challenging', 'Full Day', 'Team Ready']
+    },
+    {
+      title: 'Family Explorer Package',
+      price: 1500,
+      emoji: '👨‍👩‍👧‍👦',
+      image: 'assets/team-building.jpg',
+      description: 'Safe, scenic and fun-filled activities designed for kids and adults to enjoy together.',
+      tags: ['easy', '2-3 hrs', 'Family Friendly']
+    },
+    {
+      title: 'Corporate Team Challenge',
+      price: 1500,
+      emoji: '🏆',
+      image: 'assets/team-building.jpg',
+      description: 'Strategic, energetic outdoor activities that build trust, communication and team performance.',
+      tags: ['moderate', 'Custom', 'Group Bonding']
+    }
+  ];
+
+  const activities = [
+    {
+      title: 'Ziplining Adventure',
+      price: 750,
+      emoji: '🪂',
+      image: 'assets/atv-biking.jpg',
+      description: 'Experience breathtaking views while ziplining through the forest canopy and over rolling hills.',
+      includes: ['Safety briefing', 'Equipment hire', 'Professional guides', 'Certified safety gear']
+    },
+    {
+      title: 'Kayaking Experience',
+      price: 750,
+      emoji: '🛶',
+      image: 'assets/safari-wildlife.jpg',
+      description: 'Paddle across calm waterways while soaking in the natural beauty of the Western Cape coastline.',
+      includes: ['Kayak and paddle', 'Life jackets', 'Guided route', 'Briefing']
+    },
+    {
+      title: 'Rock Climbing Session',
+      price: 750,
+      emoji: '🧗‍♂️',
+      image: 'assets/hiking-mountain.jpg',
+      description: 'Scale scenic rock faces with confidence under expert supervision and proper safety support.',
+      includes: ['Harness rental', 'Climbing guide', 'Training session', 'Safety checks']
+    },
+    {
+      title: 'Nature Trail Hike',
+      price: 750,
+      emoji: '🥾',
+      image: 'assets/hiking-mountain.jpg',
+      description: 'A guided hike through lush paths, valley viewpoints, and dramatic mountain scenery.',
+      includes: ['Trail guide', 'Water refill', 'Route map', 'Photography stops']
+    }
+  ];
+
+  function formatPrice(value) {
+    return 'R' + value.toLocaleString('en-ZA');
+  }
+
+  function renderPackages() {
+    const container = document.getElementById('packagesList');
+    if (!container) return;
+
+    container.innerHTML = packages.map((pkg) => `
+      <div class="card">
+        <div class="card-img placeholder" style="background-image: url('${pkg.image}');"></div>
+        <div class="card-body">
+          <div class="card-row">
+            <div class="card-title">${pkg.title}</div>
+            <div class="card-price">${formatPrice(pkg.price)}</div>
+          </div>
+          <div class="card-desc">${pkg.description}</div>
+          <div class="card-tags">
+            ${pkg.tags.map(tag => `<span class="tag ${tag.includes('hrs') || tag.includes('Day') || tag.includes('Custom') ? 'duration' : tag.includes('easy') ? 'easy' : tag.includes('moderate') ? 'moderate' : tag.includes('challenging') ? 'challenging' : 'safety'}">${tag}</span>`).join('')}
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="showScreen('fees')">Quote</button>
+            <button class="btn btn-orange" style="flex:1;" onclick="bookPackage('${pkg.title}')">Book</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderActivities() {
+    const container = document.getElementById('activitiesList');
+    if (!container) return;
+
+    container.innerHTML = activities.map(item => `
+      <div class="card" onclick="openDetail('${item.title}')">
+        <div class="card-img placeholder" style="background-image: url('${item.image}');"></div>
+        <div class="card-body">
+          <div class="card-row">
+            <div class="card-title">${item.title}</div>
+            <div class="card-price">${formatPrice(item.price)}</div>
+          </div>
+          <div class="card-desc">${item.description}</div>
+          <div class="card-tags">
+            <span class="tag duration">2-3 hrs</span>
+            <span class="tag safety">Safety</span>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="event.stopPropagation(); openDetail('${item.title}')">View</button>
+            <button class="btn btn-orange" style="flex:1;" onclick="event.stopPropagation(); bookPackage('${item.title}')">Book</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function showScreen(screenName) {
+    document.querySelectorAll('.screen').forEach(screen => {
+      screen.classList.toggle('active', screen.id === `screen-${screenName}`);
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.screen === screenName);
+    });
+
+    const statusBar = document.getElementById('statusBar');
+    statusBar.classList.toggle('on-image', screenName === 'home');
+  }
+
+  function openDetail(activityTitle) {
+    const item = activities.find(activity => activity.title === activityTitle);
+    if (!item) return;
+
+    document.getElementById('detailHero').style.backgroundImage = `url('${item.image}')`;
+    document.getElementById('detailEmoji').textContent = item.emoji;
+    document.getElementById('detailTitle').textContent = item.title;
+    document.getElementById('detailPrice').textContent = formatPrice(item.price);
+    document.getElementById('detailDesc').textContent = item.description;
+    document.getElementById('detailIncludes').innerHTML = item.includes.map(include => `<li>${include}</li>`).join('');
+
+    showScreen('detail');
+  }
+
+  function bookPackage(title) {
+    const feeSelect = document.getElementById('feeSelect');
+    const matchingOption = Array.from(feeSelect.options).find(option => option.textContent.toLowerCase().includes(title.toLowerCase()));
+    if (matchingOption) {
+      feeSelect.value = matchingOption.value;
+    }
+    showScreen('fees');
+    updateFeeBreakdown();
+  }
+
+  function goToBooking() {
+    showScreen('fees');
+  }
+
+  function changeFeeCount(step) {
+    const countEl = document.getElementById('feeCount');
+    let value = Number(countEl.textContent || 1);
+    value = Math.max(1, value + step);
+    countEl.textContent = value;
+    updateFeeBreakdown();
+  }
+
+  function updateFeeBreakdown() {
+    const feeSelect = document.getElementById('feeSelect');
+    const feeCount = document.getElementById('feeCount');
+    const breakdown = document.getElementById('feeBreakdown');
+    const unitPrice = Number(feeSelect.value || 0);
+    const count = Number(feeCount.textContent || 1);
+
+    const tier = count >= 4 ? 15 : count >= 3 ? 10 : count >= 2 ? 5 : 0;
+    const subtotal = unitPrice * count;
+    const discount = subtotal * (tier / 100);
+    const total = subtotal - discount;
+
+    breakdown.innerHTML = `
+      <div class="cost-row"><span>Package cost</span><span>${formatPrice(subtotal)}</span></div>
+      <div class="cost-row discount"><span>Discount (${tier}%)</span><span>- ${formatPrice(discount)}</span></div>
+      <div class="cost-row total"><span>Total</span><span>${formatPrice(total)}</span></div>
+    `;
+  }
+
+  function proceedToBooking() {
+    showSuccessModal('Your quote has been prepared and is ready for confirmation.');
+  }
+
+  function showSuccessModal(message) {
+    const modal = document.getElementById('successModal');
+    const modalMessage = document.getElementById('modalMessage');
+    modalMessage.textContent = message;
+    modal.classList.add('show');
+  }
+
+  function closeSuccessModal() {
+    document.getElementById('successModal').classList.remove('show');
+  }
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => showScreen(item.dataset.screen));
+  });
+
+  document.getElementById('feeSelect').addEventListener('change', updateFeeBreakdown);
+
+  renderPackages();
+  renderActivities();
+  updateFeeBreakdown();
+  showScreen('home');
+</script>
+</body>
+</html>

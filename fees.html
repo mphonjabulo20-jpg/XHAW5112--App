@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adventure Escape SA - Fees & Booking</title>
+  <style>
+    :root {
+      --forest-green: #1B5E20;
+      --adventure-orange: #F57C00;
+      --sky-blue: #0288D1;
+      --off-white: #F5F5F0;
+      --dark-text: #1a1a1a;
+      --light-text: #ffffff;
+      --grey-text: #666666;
+      --card-bg: #ffffff;
+      --danger: #D32F2F;
+      --success: #2E7D32;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 420px;
+      background: var(--off-white);
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .status-bar {
+      background: transparent;
+      padding: 8px 20px 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark-text);
+      z-index: 10;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px;
+    }
+
+    .header {
+      padding: 12px 20px;
+      background: var(--off-white);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--dark-text);
+      text-align: center;
+    }
+    .header-sub {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--adventure-orange);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .section {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .discount-box {
+      background: linear-gradient(135deg, #E8F5E9, #F1F8E9);
+      border: 1px solid #A5D6A7;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .discount-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--forest-green);
+      margin-bottom: 8px;
+    }
+    .discount-tier {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 12px;
+      color: #333;
+      border-bottom: 1px solid rgba(165, 214, 167, 0.3);
+    }
+    .discount-tier:last-child { border-bottom: none; }
+    .discount-percent {
+      font-weight: 700;
+      color: var(--forest-green);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dark-text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .form-select:focus {
+      outline: none;
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.1);
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 4px 8px;
+    }
+    .counter-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--forest-green);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .counter-btn:active { background: #0d3b15; }
+    .counter-display {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--dark-text);
+      min-width: 30px;
+    }
+
+    .breakdown {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 13px;
+      color: var(--dark-text);
+    }
+    .breakdown-row.total {
+      border-top: 2px solid #e0e0e0;
+      padding-top: 12px;
+      margin-top: 12px;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--adventure-orange);
+    }
+    .breakdown-label {
+      color: var(--grey-text);
+    }
+    .breakdown-value {
+      font-weight: 700;
+    }
+    .discount-value {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      padding: 14px 20px;
+      text-decoration: none;
+      width: 100%;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary {
+      background: var(--adventure-orange);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: var(--forest-green);
+      color: #fff;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 20px;
+      text-align: center;
+      max-width: 280px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .modal-emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--dark-text);
+      margin-bottom: 8px;
+    }
+    .modal-desc {
+      font-size: 13px;
+      color: var(--grey-text);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+    }
+    .modal-btn {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .modal-btn.confirm {
+      background: var(--adventure-orange);
+      color: #fff;
+    }
+    .modal-btn.secondary {
+      background: #f0f0f0;
+      color: var(--dark-text);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 4px 12px;
+      border-top: 1px solid #e0e0e0;
+      z-index: 100;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: #999;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: color 0.2s;
+      flex: 1;
+      min-width: 0;
+      text-decoration: none;
+    }
+    .nav-item.active { color: var(--forest-green); font-weight: 700; }
+    .nav-icon {
+      width: 22px; height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    @media (min-width: 421px) {
+      #app { border-radius: 24px; margin: 20px 0; min-height: calc(100vh - 40px); }
+      .bottom-nav { border-radius: 0 0 24px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="icons"><span>📶</span><span>🔋</span></div>
+  </div>
+
+  <div class="content">
+    <div class="header">
+      <div class="header-sub">PRICING & BOOKING</div>
+      <div class="header-title">Fees Calculator</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Group Discount Tiers</div>
+      <div class="discount-box">
+        <div class="discount-title">📊 Save More by Booking Together</div>
+        <div class="discount-tier">
+          <span>1 Booking</span>
+          <span class="discount-percent">0% Off</span>
+        </div>
+        <div class="discount-tier">
+          <span>2 Bookings</span>
+          <span class="discount-percent">5% Off</span>
+        </div>
+        <div class="discount-tier">
+          <span>3 Bookings</span>
+          <span class="discount-percent">10% Off</span>
+        </div>
+        <div class="discount-tier">
+          <span>4+ Bookings</span>
+          <span class="discount-percent">15% Off</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Choose Adventure</div>
+      <div class="form-group">
+        <label class="form-label">Select Package or Activity</label>
+        <select id="packageSelect" class="form-select" onchange="updateBreakdown()">
+          <option value="">-- Choose an option --</option>
+          <optgroup label="Packages">
+            <option value="1500">Mountain Adventure - R1,500</option>
+            <option value="1500">Ultimate Adventure Day - R1,500</option>
+            <option value="1500">Family Explorer Package - R1,500</option>
+            <option value="1500">Corporate Team Challenge - R1,500</option>
+          </optgroup>
+          <optgroup label="Activities">
+            <option value="750">Ziplining Adventure - R750</option>
+            <option value="750">Kayaking Experience - R750</option>
+            <option value="750">Rock Climbing Session - R750</option>
+            <option value="750">Nature Trail Hike - R750</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Number of Participants</div>
+      <div class="form-group">
+        <div class="counter">
+          <button class="counter-btn" onclick="decrementCounter()">−</button>
+          <div class="counter-display" id="counterDisplay">1</div>
+          <button class="counter-btn" onclick="incrementCounter()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Cost Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-row">
+          <span class="breakdown-label">Unit Price</span>
+          <span class="breakdown-value" id="unitPrice">R 0.00</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">Quantity</span>
+          <span class="breakdown-value" id="quantityDisplay">1</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">Subtotal</span>
+          <span class="breakdown-value" id="subtotal">R 0.00</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">Discount Applied</span>
+          <span class="discount-value" id="discountAmount">R 0.00</span>
+        </div>
+        <div class="breakdown-row total">
+          <span>Total Price</span>
+          <span id="totalPrice">R 0.00</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="proceedToBooking()" style="margin-top: 12px;">PROCEED TO BOOKING</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item"><div class="nav-icon">🏠</div><span>Home</span></a>
+    <a href="about.html" class="nav-item"><div class="nav-icon">ℹ️</div><span>About</span></a>
+    <a href="packages.html" class="nav-item"><div class="nav-icon">🎒</div><span>Packages</span></a>
+    <a href="activities.html" class="nav-item"><div class="nav-icon">⚡</div><span>Activities</span></a>
+    <a href="fees.html" class="nav-item active"><div class="nav-icon">💰</div><span>Fees</span></a>
+  </nav>
+</div>
+
+<div id="successModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-emoji">✅</div>
+    <div class="modal-title">Booking Confirmed!</div>
+    <div class="modal-desc">Your adventure awaits! We've sent a confirmation to your email.</div>
+    <div class="modal-buttons">
+      <button class="modal-btn confirm" onclick="goHome()">Continue to Home</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Keep Browsing</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let counter = 1;
+  let selectedPrice = 0;
+
+  function incrementCounter() {
+    if (counter < 10) {
+      counter++;
+      updateBreakdown();
+    }
+  }
+
+  function decrementCounter() {
+    if (counter > 1) {
+      counter--;
+      updateBreakdown();
+    }
+  }
+
+  function getDiscount(bookings) {
+    if (bookings === 1) return 0;
+    if (bookings === 2) return 0.05;
+    if (bookings === 3) return 0.10;
+    if (bookings >= 4) return 0.15;
+    return 0;
+  }
+
+  function formatPrice(value) {
+    return 'R ' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function updateBreakdown() {
+    const select = document.getElementById('packageSelect');
+    selectedPrice = parseFloat(select.value) || 0;
+
+    const counterEl = document.getElementById('counterDisplay');
+    counterEl.textContent = counter;
+
+    document.getElementById('unitPrice').textContent = formatPrice(selectedPrice);
+    document.getElementById('quantityDisplay').textContent = counter;
+
+    const subtotal = selectedPrice * counter;
+    document.getElementById('subtotal').textContent = formatPrice(subtotal);
+
+    const discount = getDiscount(counter);
+    const discountAmount = subtotal * discount;
+    document.getElementById('discountAmount').textContent = '- ' + formatPrice(discountAmount);
+
+    const total = subtotal - discountAmount;
+    document.getElementById('totalPrice').textContent = formatPrice(total);
+  }
+
+  function proceedToBooking() {
+    if (selectedPrice === 0) {
+      alert('Please select a package or activity');
+      return;
+    }
+    showModal();
+  }
+
+  function showModal() {
+    document.getElementById('successModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('successModal').classList.remove('active');
+  }
+
+  function goHome() {
+    window.location.href = 'home.html';
+  }
+
+  updateBreakdown();
+</script>
+</body>
+</html>

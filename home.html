@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adventure Escape SA - Home</title>
+  <style>
+    :root {
+      --forest-green: #1B5E20;
+      --adventure-orange: #F57C00;
+      --sky-blue: #0288D1;
+      --off-white: #F5F5F0;
+      --dark-text: #1a1a1a;
+      --light-text: #ffffff;
+      --grey-text: #666666;
+      --card-bg: #ffffff;
+      --danger: #D32F2F;
+      --success: #2E7D32;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 420px;
+      background: var(--off-white);
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .status-bar {
+      background: transparent;
+      padding: 8px 20px 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark-text);
+      position: relative;
+      z-index: 10;
+    }
+    .status-bar.on-image { color: #fff; }
+    .status-bar .icons { display: flex; gap: 6px; }
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      background: linear-gradient(180deg, #5a7a8a 0%, #3d5a6b 40%, #2c3e50 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 90%, rgba(245,124,0,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 20%, rgba(255,200,100,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-mountains {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 45%;
+      background:
+        linear-gradient(135deg, transparent 40%, #1a2a35 40%),
+        linear-gradient(225deg, transparent 40%, #1a2a35 40%);
+      opacity: 0.7;
+    }
+    .hero-mountains::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 30%;
+      background: linear-gradient(180deg, transparent, #0f1a22);
+    }
+    .hero-logo {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      background: var(--forest-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero h2 {
+      font-size: 15px;
+      font-weight: 400;
+      opacity: 0.9;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-activities {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #fff;
+      opacity: 0.85;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-cta {
+      background: var(--adventure-orange);
+      color: #fff;
+      border: none;
+      padding: 16px 40px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin: 10px 0;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 6px 20px rgba(245,124,0,0.5);
+      transition: transform 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .hero-cta:active { transform: scale(0.96); }
+    .hero-why {
+      margin-top: 24px;
+      text-align: left;
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.8;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-why strong { display: block; text-align: center; margin-bottom: 6px; font-size: 14px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      padding: 10px 18px;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-orange { background: var(--adventure-orange); color: #fff; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 4px 12px;
+      border-top: 1px solid #e0e0e0;
+      z-index: 100;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: #999;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: color 0.2s;
+      flex: 1;
+      min-width: 0;
+      text-decoration: none;
+    }
+    .nav-item.active { color: var(--forest-green); font-weight: 700; }
+    .nav-icon {
+      width: 22px; height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    @media (min-width: 421px) {
+      #app { border-radius: 24px; margin: 20px 0; min-height: calc(100vh - 40px); }
+      .bottom-nav { border-radius: 0 0 24px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="status-bar" id="statusBar">
+    <span>9:41</span>
+    <div class="icons"><span>📶</span><span>🔋</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-mountains"></div>
+    <div class="hero-logo">🏔️</div>
+    <h1>ADVENTURE ESCAPE SA</h1>
+    <h2>Explore the Wild Beauty of the Western Cape</h2>
+    <div class="hero-activities">HIKING · KAYAKING · CLIMBING</div>
+    <a href="packages.html" class="hero-cta">START YOUR JOURNEY</a>
+    <div class="hero-why">
+      <strong>Why Choose Us?</strong>
+      ✓ Professional Guides<br>
+      ✓ Safe Adventures<br>
+      ✓ Family Friendly
+    </div>
+    <a href="packages.html" class="btn btn-orange" style="margin-top:20px;padding:14px 36px;font-size:14px;">ENTER</a>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item active"><div class="nav-icon">🏠</div><span>Home</span></a>
+    <a href="about.html" class="nav-item"><div class="nav-icon">ℹ️</div><span>About</span></a>
+    <a href="packages.html" class="nav-item"><div class="nav-icon">🎒</div><span>Packages</span></a>
+    <a href="activities.html" class="nav-item"><div class="nav-icon">⚡</div><span>Activities</span></a>
+    <a href="fees.html" class="nav-item"><div class="nav-icon">💰</div><span>Fees</span></a>
+  </nav>
+</div>
+
+</body>
+</html>
